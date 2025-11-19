@@ -37,6 +37,7 @@ class AppController:
         self._autosave_active = False
         self._autosave_thread = None
         self._autosave_stop_event = threading.Event()
+        self._autosave_interval = 10  # segundos
 
         # Control de búsqueda y filtrado
         self._all_usuarios = []
@@ -312,6 +313,8 @@ class AppController:
 
     def _start_autosave(self):
         """Inicia el auto-guardado en segundo plano"""
+        if self._autosave_thread and self._autosave_thread.is_alive():
+            return
         self._autosave_active = True
         self.view.btn_auto_guardar.configure(text="Auto-guardar (ON)")
         self._autosave_stop_event.clear()
@@ -326,18 +329,22 @@ class AppController:
         self._autosave_stop_event.set()
         if self._autosave_thread:
             self._autosave_thread.join(timeout=1)
+        self._autosave_thread = None
         self.view.set_status("Auto-guardado desactivado")
 
     def _autosave_worker(self):
         """Hilo de trabajo para auto-guardado cada 10 segundos"""
-        while not self._autosave_stop_event.is_set():
-            time.sleep(10)
-            if not self._autosave_stop_event.is_set():
+        while True:
+            if self._autosave_stop_event.wait(self._autosave_interval):
+                break
+            if self._autosave_active:
                 # Usar after() para actualizar UI desde el hilo
                 self.master.after(0, self._do_autosave)
 
     def _do_autosave(self):
         """Realiza el guardado automático"""
+        if not self._autosave_active:
+            return
         try:
             self.model.guardar_csv(self.CSV_PATH)
             self.view.set_status("Auto-guardado: OK")
