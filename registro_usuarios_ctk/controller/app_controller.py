@@ -287,7 +287,7 @@ class AppController:
     def guardar_usuarios(self):
         """Guarda los usuarios en CSV"""
         try:
-            self.model.guardar_csv(self.CSV_PATH)
+            self._guardar_en_csv()
             self.view.set_status(f"Guardado en {self.CSV_PATH.name}")
         except Exception as e:
             self.view.set_status(f"Error al guardar: {e}")
@@ -321,6 +321,8 @@ class AppController:
         self._autosave_thread = threading.Thread(target=self._autosave_worker, daemon=True)
         self._autosave_thread.start()
         self.view.set_status("Auto-guardado activado")
+        # Guardar de inmediato para asegurar que usuarios.csv queda sincronizado
+        self.master.after(0, self._do_autosave)
 
     def _stop_autosave(self):
         """Detiene el auto-guardado"""
@@ -346,10 +348,14 @@ class AppController:
         if not self._autosave_active:
             return
         try:
-            self.model.guardar_csv(self.CSV_PATH)
+            self._guardar_en_csv()
             self.view.set_status("Auto-guardado: OK")
         except Exception as e:
             self.view.set_status(f"Auto-guardado: Error - {e}")
+
+    def _guardar_en_csv(self):
+        """Persiste los usuarios en usuarios.csv"""
+        self.model.guardar_csv(self.CSV_PATH)
 
     def on_salir(self):
         """Maneja la salida de la aplicación"""

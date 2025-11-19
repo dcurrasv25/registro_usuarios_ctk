@@ -98,20 +98,21 @@ class MainView:
             self.lbl_nombre.configure(text="Nombre: ")
             self.lbl_edad.configure(text="Edad: ")
             self.lbl_genero.configure(text="Género: ")
-            self.avatar_label.configure(image=None, text="[Sin Avatar]")
+            self.avatar_label.configure(image=tk.PhotoImage(), text="[Sin Avatar]")
             self.avatar_label.image = None
             return
 
         self.lbl_nombre.configure(text=f"Nombre: {usuario.nombre}")
         self.lbl_edad.configure(text=f"Edad: {usuario.edad}")
         self.lbl_genero.configure(text=f"Género: {usuario.genero}")
+
         if avatar_image:
             # avatar_image must be a tkinter.PhotoImage
             self.avatar_label.configure(image=avatar_image, text="")
             # keep reference to avoid GC (store on widget)
             self.avatar_label.image = avatar_image
         else:
-            self.avatar_label.configure(image=None, text="[Sin Avatar]")
+            self.avatar_label.configure(image=tk.PhotoImage(), text="[Sin Avatar]")
             self.avatar_label.image = None
 
 
