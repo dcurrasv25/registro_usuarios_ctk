@@ -37,6 +37,26 @@ class GestorUsuarios:
             raise ValueError("Usuario inválido")
         self._usuarios.append(usuario)
 
+    def actualizar_usuario(self, indice: int, usuario: Usuario):
+        if not (0 <= indice < len(self._usuarios)):
+            raise IndexError("Usuario inexistente")
+        self._usuarios[indice] = usuario
+
+    def eliminar_usuario(self, indice: int):
+        if not (0 <= indice < len(self._usuarios)):
+            raise IndexError("Usuario inexistente")
+        del self._usuarios[indice]
+
+    def buscar_y_filtrar(self, nombre_filtro: str = "", genero: str = "Todos"):
+        resultado = []
+        nombre_filtro = (nombre_filtro or "").lower()
+        for idx, usuario in enumerate(self._usuarios):
+            coincide_nombre = nombre_filtro in usuario.nombre.lower()
+            coincide_genero = genero == "Todos" or usuario.genero == genero
+            if coincide_nombre and coincide_genero:
+                resultado.append((idx, usuario))
+        return resultado
+
     def guardar_csv(self, path: Path | None = None):
         destino = Path(path) if path else self.csv_path
         if destino is None:
