@@ -7,6 +7,11 @@ class MainView:
     def __init__(self, master):
         self.master = master
 
+        self.menubar = tk.Menu(master)
+        master.config(menu=self.menubar)
+        self.menu_archivo = tk.Menu(self.menubar, tearoff=0)
+        self.menubar.add_cascade(label="Archivo", menu=self.menu_archivo)
+
         self.left_frame = ctk.CTkFrame(master)
         self.left_frame.grid(row=0, column=0, sticky="nswe", padx=10, pady=10)
 

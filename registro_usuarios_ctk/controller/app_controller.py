@@ -10,15 +10,21 @@ class AppController:
     def __init__(self, master):
         self.master = master
         self.BASE_DIR = Path(__file__).resolve().parent.parent
+        self.CSV_PATH = self.BASE_DIR / "usuarios.csv"
 
-        self.model = GestorUsuarios()
+        self.model = GestorUsuarios(self.CSV_PATH)
         self.view = MainView(master)
 
         self.avatar_cache = {}
+        self._selected_index = None
 
         self.view.btn_anadir.configure(command=self.abrir_ventana_anadir)
+        self.view.menu_archivo.add_command(label="Guardar", command=self.guardar_usuarios)
+        self.view.menu_archivo.add_command(label="Cargar", command=self.cargar_usuarios)
+        self.view.menu_archivo.add_separator()
+        self.view.menu_archivo.add_command(label="Salir", command=self.master.destroy)
 
-        self.refrescar_lista_usuarios()
+        self.cargar_usuarios()
 
     def refrescar_lista_usuarios(self):
         usuarios = self.model.listar()
@@ -27,6 +33,7 @@ class AppController:
 
     def seleccionar_usuario(self, indice: int):
         usuario = self.model.get_usuario(indice)
+        self._selected_index = indice
         avatar_image = None
         if usuario and usuario.avatar:
             avatar_image = self._cargar_avatar(usuario.avatar)
@@ -76,3 +83,19 @@ class AppController:
         self.model.agregar_usuario(usuario)
         self.refrescar_lista_usuarios()
         add_view.window.destroy()
+
+    def guardar_usuarios(self):
+        try:
+            self.model.guardar_csv(self.CSV_PATH)
+            messagebox.showinfo("Guardar", "Usuarios guardados correctamente")
+        except Exception as exc:
+            messagebox.showerror("Error", f"No se pudo guardar: {exc}")
+
+    def cargar_usuarios(self):
+        try:
+            self.model.cargar_csv(self.CSV_PATH)
+            self.avatar_cache.clear()
+        except Exception as exc:
+            messagebox.showerror("Error", f"No se pudo cargar: {exc}")
+        finally:
+            self.refrescar_lista_usuarios()
