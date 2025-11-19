@@ -16,9 +16,9 @@ class GestorUsuarios:
 
     def _cargar_datos_de_ejemplo(self):
         self._usuarios = [
-            Usuario("Ejemplo Uno", 30, "M"),
-            Usuario("Ejemplo Dos", 25, "F"),
-            Usuario("Ejemplo Tres", 28, "Otro"),
+            Usuario("Ejemplo Uno", 30, "M", "assets/avatar1.png"),
+            Usuario("Ejemplo Dos", 25, "F", "assets/avatar2.png"),
+            Usuario("Ejemplo Tres", 28, "Otro", ""),
         ]
 
     def listar(self):
@@ -28,3 +28,8 @@ class GestorUsuarios:
         if 0 <= indice < len(self._usuarios):
             return self._usuarios[indice]
         return None
+
+    def agregar_usuario(self, usuario: Usuario):
+        if not usuario or not usuario.nombre:
+            raise ValueError("Usuario inválido")
+        self._usuarios.append(usuario)
